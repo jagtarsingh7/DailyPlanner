@@ -1,0 +1,167 @@
+//
+//  Reminder.swift
+//  FInal
+//
+//  Created by Jagtar Singh matharu on 2023-04-19.
+//
+
+import SwiftUI
+
+struct CalenderEvent: View {
+    
+    
+    @Binding var items:[EventModel]
+    @Environment(\.presentationMode) var presentationMode
+    
+    @State private var name: String = ""
+    @State private var password: String = ""
+    @State private var email: String = ""
+    @State private var text2: String = "put your notes here"
+    @State private var selectedDate = Date()
+    @State private var isDatePickerShown = false
+    @State private var isDatePickerShown2 = false
+
+    @State private var time = Date()
+    
+    let dateFormatter = DateFormatter() // Create a DateFormatter object
+    let dateFormatter2 = DateFormatter() // Create a DateFormatter object
+
+
+    let emojis = ["😀", "😂", "😍", "👍"]
+    @State private var text = ""
+    @State private var showPicker = false
+    
+    var body: some View {
+       
+        GeometryReader{ geometry in
+            
+            VStack{
+                Text("New Event")
+                    .font(.title)
+                    .bold()
+                    .padding(.trailing,geometry.size.width*0.67)
+                    .padding(.bottom)
+                            
+                TextField("Reminder Name", text: $email)
+                    .frame(width: geometry.size.width, height: 60)
+                    .font(.system(size: 20))
+                    .cornerRadius(10)
+                    .background(Color.gray.opacity(0.2))
+                    .padding(.bottom)
+             
+                TextField("Category", text: $name)
+                    .frame(width: geometry.size.width, height: 60)
+                    .font(.system(size: 20))
+                    .cornerRadius(10)
+                    .background(Color.gray.opacity(0.2))
+                    .padding(.bottom)
+            
+                Text("or register with E-Mail")
+                    .padding(.bottom)
+                
+                HStack{
+                    Button(action: {
+                                   self.isDatePickerShown.toggle()
+                               }) {
+                                   HStack {
+                                       Image(systemName: "calendar")
+                                       Spacer()
+                                       Text(selectedDate, style: .date)
+                                           .foregroundColor(.blue)
+                                   }
+                                   .padding()
+                                   .background(Color.gray.opacity(0.2))
+                                   .cornerRadius(10)
+                               }
+                               .sheet(isPresented: $isDatePickerShown) {
+                                   DatePicker("Select a date", selection: $selectedDate, displayedComponents: [.date])
+                                       .datePickerStyle(WheelDatePickerStyle())
+                                       .labelsHidden()
+                            }
+                    Button(action: {
+                                   self.isDatePickerShown2.toggle()
+                               }) {
+                                   HStack {
+                                       Image(systemName: "clock")
+                                       Spacer()
+                                       Text(time, style: .time)
+                                           .foregroundColor(.blue)
+                                   }
+                                   .padding()
+                                   .background(Color.gray.opacity(0.2))
+                                   .cornerRadius(10)
+                               }
+                               .sheet(isPresented: $isDatePickerShown2) {
+                                   DatePicker("Select a date", selection: $time, displayedComponents: [.hourAndMinute])
+                                       .datePickerStyle(WheelDatePickerStyle())
+                                       .labelsHidden()
+                            }
+                  
+                          
+                }
+                .padding(.bottom)
+             
+                Text("Note")
+                           TextEditor(text: $text)
+                               .frame(height: 200)
+                               .background(Color.gray.opacity(0.2))
+                               .cornerRadius(8)
+                               .padding(.horizontal)
+                               .border(.orange)
+                
+                HStack {
+                           ForEach(emojis, id: \.self) { emoji in
+                               Button(action: {
+                                   text += emoji
+                               }) {
+                                   Text(emoji)
+                                       .font(.largeTitle)
+                               }
+                           }
+                           Button(action: {
+                               showPicker = true
+                           }) {
+                               Image(systemName: "plus")
+                                   .font(.largeTitle)
+                           }
+                           .sheet(isPresented: $showPicker) {
+                               Text("Emoji Picker")
+                           }
+                        }
+                           .padding()
+                           
+                Button(action: {
+                    dateFormatter.dateFormat = "yyyy-MM-dd" // Set the date format
+                    var date=dateFormatter.string(from: selectedDate)
+                    dateFormatter2.dateFormat = "h:mm a"// Set the date format
+                    let timeString = dateFormatter2.string(from: time) // Convert the Date to a String using the DateFormatter
+
+                    var item=EventModel(name:name,date:date,time:timeString,note:text)
+
+                    items.append(item)
+                    
+                    self.presentationMode.wrappedValue.dismiss()
+
+                }) {
+                    Text("Create Event")
+                }
+                .frame(width: geometry.size.width, height: 60)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .padding(.bottom)
+
+            }
+            .frame(width: geometry.size.width,height: geometry.size.height)
+
+            
+        }
+    }
+}
+
+//
+//struct CalenderEvent_PreviewProvider: PreviewProvider {
+//    static var previews: some View {
+//        CalenderEvent()
+//    }
+//}
+//
